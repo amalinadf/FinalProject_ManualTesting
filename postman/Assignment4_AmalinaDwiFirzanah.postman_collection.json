@@ -1,0 +1,591 @@
+{
+  "info": {
+    "_postman_id": "f6d6485f-2794-4c72-a085-c91aa5fb21b2",
+    "name": "Assignment4_AmalinaDwiFirzanah",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34714840"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Valid User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Response contains a JWT token\", function () {\n    pm.expect(jsonData.data.token).to.be.a(\"string\").and.not.empty;\n});\n\n// simpan token ke collection variable\npm.collectionVariables.set(\"token\", jsonData.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{demoEmail}}\",\n  \"password\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Invalid Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = false\", function () {\n    pm.expect(jsonData.success).to.eql(false);\n});\n\npm.test(\"Error message is present\", function () {\n    pm.expect(jsonData.error).to.have.property(\"message\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{demoEmail}}\",\n  \"password\": \"salahpassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "CRUD",
+      "item": [
+        {
+          "name": "Create Lab - Invalid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\n    pm.response.to.have.status(400);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = false\", function () {\n    pm.expect(jsonData.success).to.eql(false);\n});\n\npm.test(\"Validation error message is present\", function () {\n    pm.expect(jsonData.error).to.have.property(\"message\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Missing title field on purpose\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/labs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Lab - Valid",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var uniqueTitle = \"Postman Test Lab \" + Date.now();\npm.collectionVariables.set(\"createdTitle\", uniqueTitle);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Created lab has id and matching title\", function () {\n    pm.expect(jsonData.data).to.have.property(\"id\");\n    pm.expect(jsonData.data.title).to.eql(pm.collectionVariables.get(\"createdTitle\"));\n});\n\n// simpan labId buat dipakai di GET/PUT/DELETE\npm.collectionVariables.set(\"labId\", jsonData.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{createdTitle}}\",\n  \"description\": \"Lab created via Postman automation test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/labs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Labs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Data is an array\", function () {\n    pm.expect(jsonData.data).to.be.an(\"array\");\n});\n\npm.test(\"Pagination object is present\", function () {\n    pm.expect(jsonData.pagination).to.have.property(\"page\");\n    pm.expect(jsonData.pagination).to.have.property(\"total\");\n});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/labs?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lab By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Lab id matches requested id\", function () {\n    pm.expect(String(jsonData.data.id)).to.eql(String(pm.collectionVariables.get(\"labId\")));\n});\n\npm.test(\"Lab title matches the one created earlier\", function () {\n    pm.expect(jsonData.data.title).to.eql(pm.collectionVariables.get(\"createdTitle\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/labs/{{labId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs",
+                "{{labId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SearchLab",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Data is an array and search_query is echoed back\", function () {\n    pm.expect(jsonData.data).to.be.an(\"array\");\n    pm.expect(jsonData.search_query).to.eql(\"Postman\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/labs/search?q=Postman",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Postman"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lab",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Title was updated correctly\", function () {\n    pm.expect(jsonData.data.title).to.eql(pm.collectionVariables.get(\"createdTitle\") + \" - Updated\");\n});\n\npm.test(\"Lab id stays the same after update\", function () {\n    pm.expect(String(jsonData.data.id)).to.eql(String(pm.collectionVariables.get(\"labId\")));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{createdTitle}} - Updated\",\n  \"description\": \"Updated via Postman PUT test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/labs/{{labId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs",
+                "{{labId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lab",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = true\", function () {\n    pm.expect(jsonData.success).to.eql(true);\n});\n\npm.test(\"Deleted id matches labId\", function () {\n    pm.expect(String(jsonData.data.id)).to.eql(String(pm.collectionVariables.get(\"labId\")));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/labs/{{labId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs",
+                "{{labId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lab By ID - After Delete (Gatekeeper Check)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404 (lab already deleted)\", function () {\n    pm.response.to.have.status(404);\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response has success = false\", function () {\n    pm.expect(jsonData.success).to.eql(false);\n});\n\npm.test(\"Error message indicates lab not found\", function () {\n    pm.expect(jsonData.error.message.toLowerCase()).to.include(\"not found\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/labs/{{labId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs",
+                "{{labId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DataDrivenTest",
+      "item": [
+        {
+          "name": "Create Lab - Data Driven (CSV)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code matches expected scenario (\" + pm.iterationData.get(\"scenario\") + \")\", function () {\n    pm.response.to.have.status(Number(pm.iterationData.get(\"expectedStatus\")));\n});\n\npm.test(\"Response time is acceptable (< 2000ms)\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\nvar jsonData = pm.response.json();\n\npm.test(\"Response success flag matches expected outcome\", function () {\n    var expectedStatus = Number(pm.iterationData.get(\"expectedStatus\"));\n    var expectedSuccess = expectedStatus < 400;\n    pm.expect(jsonData.success).to.eql(expectedSuccess);\n});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var scenario = pm.iterationData.get(\"scenario\");\nvar iterTitle = pm.iterationData.get(\"title\");\nvar timestamp = Date.now().toString();\n\nvar dynamicTitle = iterTitle;\n\nif (scenario === \"valid\") {\n    \n    dynamicTitle = iterTitle + \" \" + timestamp;\n} else if (scenario === \"edge\") {\n   \n    var base = iterTitle.substring(0, iterTitle.length - timestamp.length);\n    dynamicTitle = base + timestamp;\n}\n\n\npm.variables.set(\"dynamicTitle\", dynamicTitle);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{dynamicTitle}}\",\n  \"description\": \"{{description}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/labs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "labs"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api-script-labs.hendri.me"
+    },
+    {
+      "key": "demoEmail",
+      "value": ""
+    },
+    {
+      "key": "demoPassword",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "createdTitle",
+      "value": ""
+    },
+    {
+      "key": "labId",
+      "value": ""
+    }
+  ]
+}

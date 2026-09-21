@@ -1,0 +1,39 @@
+name: API Test - Script Labs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Functional Tests (Auth + CRUD)
+        run: |
+          newman run postman/Assignment4_AmalinaDwiFirzanah.postman_collection.json \
+            --folder Auth \
+            --folder CRUD \
+            --env-var "demoEmail=${{ secrets.DEMO_EMAIL }}" \
+            --env-var "demoPassword=${{ secrets.DEMO_PASSWORD }}"
+
+      - name: Run Data-Driven Tests (CSV)
+        run: |
+          newman run postman/Assignment4_AmalinaDwiFirzanah.postman_collection.json \
+            -d postman/create_lab_test_data.csv \
+            --folder Auth \
+            --folder DataDrivenTest \
+            --env-var "demoEmail=${{ secrets.DEMO_EMAIL }}" \
+            --env-var "demoPassword=${{ secrets.DEMO_PASSWORD }}"
