@@ -3,14 +3,14 @@
 Automation API testing untuk Script Labs API (https://api-script-labs.hendri.me) menggunakan Postman Collection, dijalankan otomatis lewat Newman (CLI) dan GitHub Actions CI/CD. 🚀
 
 ## 📁 Struktur Folder
+
+\`\`\`
 FinalProject_ManualTesting/
 ├── .github/
-│ └── workflows/
-│ └── api-test.yml # ⚙️ Workflow GitHub Actions (trigger otomatis on push/PR ke main)
-├── postman/
-│ ├── Assignment4_AmalinaDwiFirzanah.postman_collection.json # 📬 Postman Collection (Auth, CRUD, Data-Driven)
-│ └── create_lab_test_data.csv # 📊 Data CSV untuk data-driven testing (valid, invalid, edge case)
+│   └── workflows/
+...
 └── README.md
+\`\`\`
 
 
 ## ✅ Cakupan Testing
